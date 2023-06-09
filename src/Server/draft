@@ -1,0 +1,253 @@
+package Server;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+
+public class MultiThreadHandler implements Runnable{
+    ArrayList<MultiThreadHandler>clients = new ArrayList<>();
+    public User user;
+    private Socket clientSocket;
+    PrintWriter out = null;
+    BufferedReader in = null;
+    MultiThreadHandler(Socket socket){
+        clients.add(this);
+        this.clientSocket = socket;
+    }
+
+    @Override
+    public void run(){
+        try {
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out.println("Welcome to Hangman");
+            out.println("1.Register\n2.Sign In");
+            out.println("over");
+
+            String choice = in.readLine();
+            if(choice.equals("1")){
+                out.println("Enter your username, password and email separated by a comma\nJana,1235,jana@yahoo.com");
+
+                if(!user.createUser(in.readLine())){
+                    out.println("Invalid input");
+                }
+                else{
+                    out.println("User created");
+                }
+            }
+            else if(choice.equals("2")){
+                out.println("Enter your username and password separated by a comma\nJana,1235");
+                out.println("over");
+                if(!user.signIn(in.readLine())){
+                    out.println("Invalid username or password");
+                }
+                else{
+                    out.println("Welcome ");
+                }
+
+            }
+            else{
+                out.println("Invalid choice");
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+}
+  // bufferedWriter.close();
+
+    //FileWriter fileWriter = new FileWriter("Accounts.txt",true);
+    //FileOutputStream fileOutputStream = new FileOutputStream(file,true);
+
+    //PrintWriter printWriter = new PrintWriter(fileOutputStream, true);
+
+       /* public boolean signIn(String line){
+            boolean flag=true;
+            String[] user = line.split(",");
+            if(user.length !=2){
+                flag= false;
+                throw new IllegalArgumentException("Invalid input");
+            }
+            for(User u: users){
+                if(u.username.equals(user[0]) && u.password.equals(user[1])){
+                    flag= true;
+                }
+            }
+            return flag;
+        }*/
+
+           /* public boolean createUser(String line){
+                boolean flag=true;
+                String[] user = line.split(",");
+                if(user.length !=3){
+                    flag = false;
+                  throw new IllegalArgumentException("Invalid input");
+                }
+                User newUser = new User(user[0], user[1], user[2]);
+                users.add(newUser);
+                return flag;
+            }*/
+
+            ////////////////////////
+             System.out.println("dakhlt elsign in");
+                    boolean correctUname=false;
+                    boolean correctPass=false;
+                    String message="no";
+                    for(User u: users){
+                        if(u.username.equals(username) && u.password.equals(password)){
+                            correctPass=true;
+                            correctUname=true;
+                        }
+                        else if((u.username.equals(username)) && (!u.password.equals(password))){
+                            correctPass=false;
+                        }
+                        else if((!u.username.equals(username)) && (u.password.equals(password))){
+                            correctUname=true;
+                        }
+                    }
+                    if(correctPass==true && correctUname==true){
+                        message="Logged in Successfully ";
+                        System.out.println("logged in");
+                    }
+                    else if(correctPass==true && correctUname==false){
+                        message= "404 username Doesn't exist";
+                        System.out.println("elesm mesh mawgod");
+                    }
+                    else if(correctUname==true && correctPass==false){
+                       message= "401 Unauthorized Access";
+                        System.out.println("elpass ghalat  ");
+                    }
+                    return message;
+
+        System.out.println("dakhlt elsign in");
+        for(User u: users){
+            if(u.username.equals(username) && u.password.equals(password)){
+             return "Logged in Successfully";
+            }
+            else if((u.username.equals(username)) && (!u.password.equals(password))){
+                return "401 Unauthorized Access";
+            }
+            else if((!u.username.equals(username)) && (u.password.equals(password))){
+                return "404 User Not Found";
+            }
+        }
+
+         public String printStatus(String word ){
+                System.out.println("badkhol hena");
+                String status="";
+                int correctCount=0;
+                int falseCount=0;
+                for(int i=0;i<word.length();i++){
+                    System.out.println("badkhol hena2");
+                    if(guesses.contains(word.charAt(i))){
+                        status+= String.valueOf(word.charAt(i));
+                        correctCount++;
+                        System.out.println("badkhol hena31");
+                    }
+                    else {
+                        status+="_";
+                        falseCount++;
+                        //printHangman(falseCount);
+                        System.out.println("badkhol hena32");
+                    }
+                }
+                if(correctCount==word.length()){
+                    win();
+                }
+                return status;
+            }
+
+
+
+
+        if(status.equals("won")){
+        this.wins++;
+        this.words.add(word);
+
+        }
+        else if(status.equals("lost")){
+            this.losses++;
+            this.words.add(word);
+        }
+    }
+
+
+
+    //////////////////////////////////////////
+     if (choice.equals("1")) {
+            out.println("Enter a game name");
+            out.println("needreply");
+            String gameName = in.readLine();
+            Game game = new Game(gameName);
+            game.addPlayer(players.get(players.size() - 1));
+            out.println("Game created");
+            out.println("Waiting for other players to join");
+            while (true) {
+                if (game.players.size() == 2) {
+                    out.println("Game is ready to start");
+                    out.println("Enter y to start");
+                    out.println("needreply");
+                    String start = in.readLine();
+                    if (start.equals("y")) {
+                        out.println("Game started");
+                        break;
+                    }
+                }
+            }
+            while (true) {
+                out.println("Enter a letter");
+                out.println("needreply");
+                String guess = in.readLine();
+                game.addGuess(guess);
+                game.checkGuess(game.getWord(), guess);
+                out.println(game.printStatus(game.getWord()));
+                if (game.statusCheck(game.getWord()).equals("win")) {
+                    game.win(game.getWord());
+                    break;
+                } else if (game.statusCheck(game.getWord()).equals("lose")) {
+                    game.lose(game.getWord());
+                    break;
+                }
+            }
+            out.println("Game Over");
+            out.println("Enter y to play again");
+            out.println("Enter n to go to main menu");
+            out.println("needreply");
+            String choice2 = in.readLine();
+            if (choice2.equals("y")) {
+                start();
+            } else if (choice2.equals("n")) {
+                out.println("Main Menu");
+            }
+        } else if (choice.equals("2")) {
+            out.println("Enter a game name");
+            out.println("needreply");
+            String gameName = in.readLine();
+            Game game = new Game(gameName);
+            game.addPlayer(players.get(players.size() - 1));
+            out.println("Game joined");
+            out.println("Waiting for other players to join");
+            while (true) {
+                if (game.players.size() == 2) {
+                    out.println("Game is ready to start");
+                    out.println("Enter y to start");
+                    out.println("needreply");
+                    String start = in.readLine();
+                    if (start.equals("y")) {
+                        out.println("Game started");
+                        break;
+                    }
+                }
+            }
+            while (true) {
+                out.println("
+    }
+    }
